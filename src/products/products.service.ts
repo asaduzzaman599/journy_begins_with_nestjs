@@ -14,7 +14,24 @@ export class ProductsService {
             price:product.price
             
         } 
+        console.log(insertProduct,product)
         this.products.push(insertProduct)
         return {insertedID : id}
+    }
+
+    getAllProducts(){
+
+
+        return [... this.products]
+    }
+    
+    findProductIndex(id:string):[Product,number]{
+        const productIndex = this.products.findIndex(product=>product.id === id)
+        const product = this.products[productIndex] 
+        return [product,productIndex]
+    }
+    getSingleProduct(id:string){
+       const product:Product = this.findProductIndex(id)[0];
+       return product;
     }
 }
