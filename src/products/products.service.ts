@@ -30,8 +30,24 @@ export class ProductsService {
         const product = this.products[productIndex] 
         return [product,productIndex]
     }
+
     getSingleProduct(id:string){
        const product:Product = this.findProductIndex(id)[0];
        return product;
     }
+
+    
+    updateProduct(id:string,updatedProduct:ProductModel){
+        const product:Product = this.findProductIndex(id)[0];
+        if(updatedProduct?.title){
+            product.title = updatedProduct.title
+        }
+        if(updatedProduct?.description){
+            product.description = updatedProduct.description
+        }
+        if(updatedProduct?.price){
+            product.price = updatedProduct.price
+        }
+        return product;
+     }
 }
