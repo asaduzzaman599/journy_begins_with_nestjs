@@ -1,11 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Product, ProductModel } from './product.model';
+
+import { Db , ObjectId} from 'mongodb';
 
 @Injectable()
 export class ProductsService {
     private products: Product[] = []
 
-    insertProduct(product: ProductModel) {
+    constructor(
+        @Inject('DATABASE_CONNECTION')
+        private db: Db,
+      ) {}
+
+    async insertProduct(product: ProductModel) {
         const id:string = new Date().toString();
         const insertProduct:Product ={
             id,
@@ -14,15 +21,16 @@ export class ProductsService {
             price:product.price
             
         } 
-        console.log(insertProduct,product)
-        this.products.push(insertProduct)
-        return {insertedID : id}
+        const res =  await this.db.collection('product').insertOne(insertProduct);
+       console.log(res)
+        return res
     }
 
-    getAllProducts(){
+    async getAllProducts(){
 
-
-        return [... this.products]
+       const res =  await this.db.collection('product').find().toArray();
+       console.log(res)
+        return res
     }
     
     findProduct(id:string):[Product,number]{
@@ -31,14 +39,17 @@ export class ProductsService {
         return [product,productIndex]
     }
 
-    getSingleProduct(id:string){
-       const product:Product = this.findProduct(id)[0];
-       return {...product};
+    async getSingleProduct(id:string){
+        const filter = {_id:new ObjectId(id)}
+       
+        const res =  await this.db.collection('product').findOne(filter);
+       return res;
     }
 
     
-    updateProduct(id:string,updatedProduct:ProductModel){
+    async updateProduct(id:string,updatedProduct:ProductModel){
         const product:Product = this.findProduct(id)[0];
+        
         if(updatedProduct?.title){
             product.title = updatedProduct.title
         }
@@ -48,12 +59,21 @@ export class ProductsService {
         if(updatedProduct?.price){
             product.price = updatedProduct.price
         }
-        return {...product};
+        const upDoc = {
+            $set:{...updatedProduct}
+        }
+        const filter = {_id:new ObjectId(id)}
+
+        
+        const res =  await this.db.collection('product').updateOne(filter,upDoc);
+
+        return res;
      }
      
-     deleteProduct(id:string){
-        const productIndex = this.findProduct(id)[1]
-        this.products.splice(productIndex,1)
-        return {deletedCount: id}
+     async deleteProduct(id:string){
+        const filter = {_id:new ObjectId(id)}
+       
+        const res =  await this.db.collection('product').deleteOne(filter);
+       return res;
      }
 }

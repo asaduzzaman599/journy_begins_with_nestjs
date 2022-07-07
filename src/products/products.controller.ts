@@ -14,10 +14,15 @@ export class ProductsController {
     return this.productsService.insertProduct(product);
   }
   @Get()
+  async getAllProducts(@Product() user: ProductModel) {
+    
+     return this.productsService.getAllProducts();
+  }
+/*   @Get()
   async findsProducts(@Product() user: ProductModel) {
     console.log(user);
     // return this.productsService.getAllProducts();
-  }
+  } */
   @Get(':id')
   findSingleProduct(@Param('id') id:string){
     return this.productsService.getSingleProduct(id)
